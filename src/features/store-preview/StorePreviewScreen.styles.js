@@ -1,0 +1,30 @@
+import { StyleSheet } from '@/theme/themedStyleSheet';
+import { colors, radius, shadows, spacing, typography } from '@/theme';
+
+export const styles = StyleSheet.create(() => ({
+    scroll: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
+    hero: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    avatar: { width: 60, height: 60, borderRadius: 20, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary },
+    avatarImage: { width: '100%', height: '100%' },
+    heroText: { flex: 1 },
+    name: { ...typography.heading, color: colors.text },
+    handle: { ...typography.subtitle, color: colors.textMuted },
+    grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
+    tile: { width: '47%', flexGrow: 1, gap: 4, padding: spacing.sm, backgroundColor: colors.surface, borderRadius: radius.lg, ...shadows.card },
+    tileImage: { aspectRatio: 1, borderRadius: radius.md, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primarySoft },
+    image: { width: '100%', height: '100%' },
+    tileName: { ...typography.bodyStrong, fontSize: 14, color: colors.text },
+    tilePrice: { ...typography.price, fontSize: 15, color: colors.text },
+    more: { width: '100%', textAlign: 'center', ...typography.caption, color: colors.textMuted },
+    food: { gap: spacing.md },
+    shopRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    dot: { width: 10, height: 10, borderRadius: 5 },
+    dotOpen: { backgroundColor: colors.success },
+    dotClosed: { backgroundColor: colors.disabled },
+    shopText: { flex: 1, ...typography.caption, color: colors.textMuted },
+    foodRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md, backgroundColor: colors.surface, borderRadius: radius.lg, ...shadows.card },
+    unavailable: { opacity: 0.5 },
+    foodImage: { width: 52, height: 52, borderRadius: radius.md, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primarySoft },
+    foodText: { flex: 1, gap: 2 },
+    foodDesc: { ...typography.caption, color: colors.textMuted },
+}));

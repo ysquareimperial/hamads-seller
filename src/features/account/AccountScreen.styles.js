@@ -1,0 +1,47 @@
+import { StyleSheet } from '@/theme/themedStyleSheet';
+import { colors, radius, shadows, spacing, typography } from '@/theme';
+
+export const styles = StyleSheet.create(() => ({
+    scroll: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
+    hero: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.lg,
+        padding: spacing.lg,
+        backgroundColor: colors.surface,
+        borderRadius: radius.xl,
+        ...shadows.card,
+    },
+    avatar: {
+        width: 64,
+        height: 64,
+        borderRadius: 20,
+        overflow: 'hidden',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: colors.primary,
+    },
+    avatarImage: { width: '100%', height: '100%' },
+    avatarText: { fontSize: 22, fontWeight: '800', color: colors.textOnPrimary },
+    heroText: { flex: 1, gap: 2 },
+    brand: { ...typography.heading, color: colors.text },
+    name: { ...typography.subtitle, color: colors.textMuted },
+    badges: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.sm },
+    menu: { backgroundColor: colors.surface, borderRadius: radius.lg, overflow: 'hidden', ...shadows.card },
+    row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.lg, minHeight: 64 },
+    rowBorder: { borderTopWidth: 1, borderTopColor: colors.border },
+    iconTile: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primarySoft },
+    rowText: { flex: 1, gap: 1 },
+    rowLabel: { ...typography.bodyStrong, color: colors.text },
+    rowHint: { ...typography.caption, color: colors.textMuted },
+    logout: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: spacing.sm,
+        minHeight: 54,
+        borderRadius: radius.lg,
+        backgroundColor: colors.dangerSoft,
+    },
+    logoutText: { ...typography.button, color: colors.danger },
+}));

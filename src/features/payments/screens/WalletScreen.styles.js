@@ -1,0 +1,31 @@
+import { StyleSheet } from '@/theme/themedStyleSheet';
+import { colors, radius, shadows, spacing, typography } from '@/theme';
+
+export const styles = StyleSheet.create(() => ({
+    scroll: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
+    balance: { gap: spacing.xs, padding: spacing.xl, borderRadius: radius.xl, backgroundColor: colors.primary, ...shadows.button },
+    balanceLabel: { ...typography.label, color: 'rgba(255,255,255,0.8)' },
+    balanceValue: { fontSize: 34, fontWeight: '800', letterSpacing: -0.5, color: colors.textOnPrimary },
+    subRow: { flexDirection: 'row', gap: spacing.xl, marginTop: spacing.sm },
+    sub: { gap: 2 },
+    subLabel: { ...typography.caption, color: 'rgba(255,255,255,0.75)' },
+    subValue: { ...typography.bodyStrong, color: colors.textOnPrimary },
+    balanceHint: { ...typography.caption, color: 'rgba(255,255,255,0.8)', marginTop: spacing.sm },
+    actions: { flexDirection: 'row', gap: spacing.md },
+    action: { flex: 1 },
+    section: { gap: spacing.md },
+    noBank: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    noBankText: { flex: 1, ...typography.subtitle, color: colors.text },
+    list: { gap: 0, paddingVertical: spacing.xs },
+    tx: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },
+    txBorder: { borderTopWidth: 1, borderTopColor: colors.border },
+    txIcon: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+    txIn: { backgroundColor: colors.successSoft },
+    txOut: { backgroundColor: colors.dangerSoft },
+    txText: { flex: 1, gap: 2 },
+    txDesc: { ...typography.bodyStrong, fontSize: 14, color: colors.text },
+    txMeta: { ...typography.caption, color: colors.textMuted },
+    txAmount: { ...typography.bodyStrong },
+    txAmountIn: { color: colors.success },
+    txAmountOut: { color: colors.text },
+}));

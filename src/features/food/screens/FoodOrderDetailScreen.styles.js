@@ -1,0 +1,36 @@
+import { StyleSheet } from '@/theme/themedStyleSheet';
+import { colors, radius, spacing, typography } from '@/theme';
+
+export const styles = StyleSheet.create(() => ({
+    scroll: { padding: spacing.lg, gap: spacing.lg, paddingBottom: spacing.xxl },
+    statusRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    fulfil: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        paddingHorizontal: spacing.md,
+        paddingVertical: 4,
+        borderRadius: radius.pill,
+        backgroundColor: colors.primarySoft,
+    },
+    fulfilText: { fontSize: 12, fontWeight: '700', color: colors.primary },
+    total: { flex: 1, textAlign: 'right', ...typography.heading, color: colors.text },
+    note: { flexDirection: 'row', gap: spacing.sm, padding: spacing.md, borderRadius: radius.md, backgroundColor: colors.warningSoft },
+    noteText: { flex: 1, gap: 2 },
+    noteLabel: { ...typography.label, color: colors.warning },
+    noteBody: { ...typography.body, color: colors.text },
+    cardTitle: { ...typography.section, color: colors.text },
+    itemRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.sm },
+    itemBorder: { borderTopWidth: 1, borderTopColor: colors.border },
+    qty: { ...typography.section, color: colors.primary, minWidth: 32 },
+    itemText: { flex: 1, gap: 2 },
+    itemName: { ...typography.bodyStrong, color: colors.text },
+    itemMeta: { ...typography.caption, color: colors.textMuted },
+    itemTotal: { ...typography.bodyStrong, color: colors.text },
+    subtotalLabel: { flex: 1, ...typography.bodyStrong, color: colors.textMuted },
+    subtotal: { ...typography.price, color: colors.text },
+    person: { ...typography.bodyStrong, color: colors.text },
+    call: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingTop: spacing.xs },
+    callText: { ...typography.bodyStrong, color: colors.primary },
+    footer: { padding: spacing.lg, gap: spacing.sm, borderTopWidth: 1, borderTopColor: colors.border, backgroundColor: colors.background },
+}));
