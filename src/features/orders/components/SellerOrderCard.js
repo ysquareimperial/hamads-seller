@@ -19,7 +19,7 @@ export function SellerOrderCard({ order, onPress }) {
           <Text style={styles.id}>{`#${shortId(order.id)}`}</Text>
           <StatusBadge status={order.status} text={ORDER_STATUS_TEXT[order.status]}/>
         </View>
-        <Text style={styles.meta}>{`${formatDateTime(order.created_at)} · ${items}`}</Text>
+        <Text style={styles.meta}>{`${formatDateTime(order.created_at)} · ${items}${order.fulfilled_by === 'hamads' ? ' · Hamads delivery' : ''}`}</Text>
         <Text style={styles.total}>{formatNaira(order.subtotal)}</Text>
       </View>
       <Ionicons name="chevron-forward" size={18} color={colors.disabled}/>

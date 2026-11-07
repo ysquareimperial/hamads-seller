@@ -17,6 +17,7 @@ import { useRefreshStore } from '@/store/refreshStore';
 import { colors } from '@/theme';
 
 import { BUSINESS } from '@/features/business/businessConfig';
+import { BellButton } from '@/features/notifications/BellButton';
 
 import { loadDashboard } from './dashboardService';
 import { styles } from './DashboardScreen.styles';
@@ -52,17 +53,18 @@ export function DashboardScreen() {
           <Text style={styles.store} numberOfLines={1}>{seller?.brand_name ?? 'Your store'}</Text>
           <Text style={styles.kind}>{BUSINESS.store.name}</Text>
         </View>
+        <BellButton />
         <IconButton icon="swap-horizontal" accessibilityLabel="Switch business" onPress={() => router.dismissTo('/')}/>
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.primary} colors={[colors.primary]}/>}>
-        {seller && !seller.is_approved ? (<NoticeBanner title="Store under review" message="Hamads is reviewing your store. You can add products now — they go live once your store and each product are approved."/>) : null}
+        {seller && !seller.is_approved ? (seller.rejection_reason ? (<NoticeBanner title="Store not approved" message={`${seller.rejection_reason}\nUpdate your details in Profile, or contact Hamads support.`}/>) : (<NoticeBanner title="Store under review" message="Hamads is reviewing your store. You can add products now — they go live once your store and each product are approved."/>)) : null}
 
         {loading && !data ? (<LoadingView />) : error && !data ? (<ErrorState message={error} onRetry={() => reload()}/>) : data ? (<>
             <View style={styles.grid}>
               <StatTile icon="time-outline" tone={data.orders.toFulfil ? 'warning' : 'primary'} label="To fulfil" value={data.orders.toFulfil} onPress={() => router.navigate('/store/orders')}/>
-              <StatTile icon="cube-outline" label="Processing" value={data.orders.processing} onPress={() => router.navigate('/store/orders')}/>
-              <StatTile icon="paper-plane-outline" label="Shipped" value={data.orders.shipped} onPress={() => router.navigate('/store/orders')}/>
+              <StatTile icon="walk-outline" tone={data.handover?.toDropOff ? 'warning' : 'primary'} label="To drop off" value={data.handover?.toDropOff} onPress={() => router.push('/store/pickups')}/>
+              <StatTile icon="bicycle-outline" label="Rider pickups" value={data.handover?.riderComing} onPress={() => router.push('/store/pickups')}/>
               <StatTile icon="pricetags-outline" label="Products" value={countText(data.products)} onPress={() => router.navigate('/store/products')}/>
               <StatTile icon="hourglass-outline" tone={data.inReview?.value ? 'warning' : 'primary'} label="In review" value={countText(data.inReview)} onPress={() => router.navigate('/store/products')}/>
               <StatTile icon="alert-circle-outline" tone={data.lowStock ? 'danger' : 'primary'} label="Low stock (≤3)" value={data.lowStock} onPress={() => router.navigate('/store/products')}/>
@@ -73,7 +75,7 @@ export function DashboardScreen() {
                 <Button title="Add product" icon="add" compact onPress={() => router.push('/store/products/new')}/>
               </View>
               <View style={styles.action}>
-                <Button title="View orders" variant="secondary" icon="receipt-outline" compact onPress={() => router.navigate('/store/orders')}/>
+                <Button title="Handover" variant="secondary" icon="cube-outline" compact onPress={() => router.push('/store/pickups')}/>
               </View>
             </View>
 

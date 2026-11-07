@@ -3,6 +3,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
+import { usePushNotifications } from '@/features/notifications/usePushNotifications';
 import { useAuthStore } from '@/store/authStore';
 import { colors } from '@/theme';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
@@ -19,6 +20,7 @@ function AppShell() {
     const { scheme } = useTheme();
     const status = useAuthStore((s) => s.status);
     const restoreSession = useAuthStore((s) => s.restoreSession);
+    usePushNotifications();
 
     useEffect(() => {
         void restoreSession();

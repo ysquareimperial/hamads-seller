@@ -11,6 +11,10 @@ import { NoticeBanner } from '@/components/ui/NoticeBanner';
 import { SafeScreen } from '@/components/ui/SafeScreen';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { HandoverCard } from '@/features/handover/HandoverCard';
+import { handoverService } from '@/features/handover/handoverService';
+import { canSwitch } from '@/features/handover/handoverStatus';
+import { useSwitchHandover } from '@/features/handover/useSwitchHandover';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { useRefreshStore } from '@/store/refreshStore';
 import { colors } from '@/theme';
@@ -39,6 +43,10 @@ export function OrderDetailScreen() {
     const [sheet, setSheet] = useState(null); // 'ship' | 'cancel'
     const [action, setAction] = useState(null); // in-flight action name
     const [actionError, setActionError] = useState(null);
+    // Hamads delivers this order: the seller hands it to the warehouse instead of shipping it.
+    const byHamads = order?.fulfilled_by === 'hamads';
+    const { data: job, setData: setJob, reload: reloadJob } = useAsyncData(() => (byHamads ? handoverService.forOrder(id) : Promise.resolve(null)), [id, byHamads]);
+    const { switchTo, switchingId } = useSwitchHandover(setJob);
 
     const run = async (name, fn) => {
         setAction(name);
@@ -73,7 +81,7 @@ export function OrderDetailScreen() {
 
     const refresh = async () => {
         setRefreshing(true);
-        await reload({ silent: true });
+        await Promise.all([reload({ silent: true }), reloadJob({ silent: true })]);
         setRefreshing(false);
     };
 
@@ -93,7 +101,9 @@ export function OrderDetailScreen() {
     }
 
     const shipping = order.shipping;
-    const showActions = order.status === 'awaiting_fulfillment' || order.status === 'processing';
+    // Hamads orders: no process/ship (the server answers 409); cancel only until a rider is assigned.
+    const cancellable = canCancel(order.status) && (!byHamads || !job || canSwitch(job));
+    const showActions = byHamads ? cancellable : order.status === 'awaiting_fulfillment' || order.status === 'processing';
 
     return (<SafeScreen edges={['top', 'bottom']}>
       {header}
@@ -103,15 +113,17 @@ export function OrderDetailScreen() {
           <Text style={styles.total}>{formatNaira(order.subtotal)}</Text>
         </View>
 
-        {order.status === 'shipped' ? (<NoticeBanner tone="info" message="Waiting for the customer to confirm delivery."/>) : null}
+        {byHamads ? (job ? (<HandoverCard job={job} onSwitch={switchTo} switching={switchingId === job.id}/>) : (<NoticeBanner tone="info" message="Hamads delivers this order to the customer. Handover details show here once it's ready."/>)) : null}
 
-        <Card>
+        {!byHamads && order.status === 'shipped' ? (<NoticeBanner tone="info" message="Waiting for the customer to confirm delivery."/>) : null}
+
+        {!byHamads ? (<Card>
           <OrderTimeline order={order}/>
           {order.carrier_name || order.tracking_number ? (<View style={styles.tracking}>
               {order.carrier_name ? <Text style={styles.trackingText}>{`Carrier: ${order.carrier_name}`}</Text> : null}
               {order.tracking_number ? <Text style={styles.trackingText} selectable>{`Tracking: ${order.tracking_number}`}</Text> : null}
             </View>) : null}
-        </Card>
+        </Card>) : null}
 
         <Card>
           <Text style={styles.cardTitle}>{`Items (${order.item_count})`}</Text>
@@ -129,7 +141,7 @@ export function OrderDetailScreen() {
           </View>
         </Card>
 
-        {shipping ? (<Card>
+        {shipping && !byHamads ? (<Card>
             <Text style={styles.cardTitle}>Deliver to</Text>
             <Text style={styles.recipient}>{shipping.recipient_name}</Text>
             {addressLines(shipping).map((line) => (<Text key={line} style={styles.address}>{line}</Text>))}
@@ -141,8 +153,8 @@ export function OrderDetailScreen() {
       </ScrollView>
 
       {showActions ? (<View style={styles.footer}>
-          {order.status === 'awaiting_fulfillment' ? (<Button title="Start processing" icon="cube-outline" onPress={startProcessing} loading={action === 'process'} disabled={!!action}/>) : (<Button title="Mark as shipped" icon="paper-plane-outline" onPress={() => openSheet('ship')} disabled={!!action}/>)}
-          {canCancel(order.status) ? (<Button title="Cancel order" variant="secondary" compact onPress={() => openSheet('cancel')} disabled={!!action}/>) : null}
+          {byHamads ? null : order.status === 'awaiting_fulfillment' ? (<Button title="Start processing" icon="cube-outline" onPress={startProcessing} loading={action === 'process'} disabled={!!action}/>) : (<Button title="Mark as shipped" icon="paper-plane-outline" onPress={() => openSheet('ship')} disabled={!!action}/>)}
+          {cancellable ? (<Button title="Cancel order" variant="secondary" compact onPress={() => openSheet('cancel')} disabled={!!action}/>) : null}
         </View>) : null}
 
       <ShipSheet visible={sheet === 'ship'} onClose={() => setSheet(null)} submitting={action === 'ship'} error={actionError} onSubmit={(body) => run('ship', () => sellerOrderService.ship(id, body))}/>

@@ -9,6 +9,8 @@ import { productCache } from '../productCache';
 import { keyFromImageUrl, uploadProductImages } from '../services/imageUpload';
 import { productService } from '../services/productService';
 import { categoryOptions } from '../utils/productStatus';
+import { DEFAULT_DELIVERY_FEE } from '@/config';
+
 import { buildRows, fromServerVariants, MAX_VARIANTS, optionNamesOf, variantInput, variantPatch } from '../utils/variants';
 
 const EMPTY = {
@@ -18,6 +20,7 @@ const EMPTY = {
     brandId: null,
     price: '',
     compareAt: '',
+    deliveryFee: String(DEFAULT_DELIVERY_FEE),
     stock: '',
     tags: [],
     isActive: true,
@@ -50,6 +53,7 @@ const fromProduct = (product, detail) => {
     brandId: detail?.brand_id ?? null,
     price: toMoneyInput(detail?.price ?? product?.price),
     compareAt: toMoneyInput(detail?.compare_at_price ?? product?.compare_at_price),
+    deliveryFee: toMoneyInput(detail?.delivery_fee ?? product?.delivery_fee ?? DEFAULT_DELIVERY_FEE),
     stock: String(detail?.stock_quantity ?? product?.stock_quantity ?? ''),
     tags: detail?.tag_names ?? [],
     isActive: product?.is_active ?? true,
@@ -115,7 +119,7 @@ export function useProductForm(productId) {
     }, [productId]);
 
     const setField = (key) => (value) => {
-        const next = key === 'price' || key === 'compareAt' ? cleanMoney(value) : key === 'stock' ? value.replace(/\D/g, '') : value;
+        const next = key === 'price' || key === 'compareAt' || key === 'deliveryFee' ? cleanMoney(value) : key === 'stock' ? value.replace(/\D/g, '') : value;
         setValues((v) => ({ ...v, [key]: next }));
         if (errors[key]) setErrors((e) => ({ ...e, [key]: null }));
     };
@@ -154,6 +158,7 @@ export function useProductForm(productId) {
             // With variants, compare-at lives on each variant (the API rejects it on the product).
             compareAt: !values.hasVariants && compare !== null && !(hasBase && compare > price) ? 'Must be higher than the selling price, or leave blank.' : null,
             stock: !values.hasVariants && values.stock === '' ? 'Enter how many you have in stock.' : null,
+            deliveryFee: values.deliveryFee === '' || !(Number(values.deliveryFee) >= 0) ? 'Enter a delivery fee (0 for free delivery).' : null,
             images: values.images.length === 0 ? 'Add at least one photo.' : null,
             options: null,
             rows: {},
@@ -198,6 +203,8 @@ export function useProductForm(productId) {
         } : { compare_at_price: values.compareAt || null, stock_quantity: Number(values.stock) }),
         image_keys: await buildImageKeys(),
         tag_names: values.tags,
+        // Sellers never deliver: every product uses Hamads delivery (delivery_method defaults to hamads_pickup).
+        delivery_fee: values.deliveryFee,
     });
 
     /** Brings server variants in line with the rows: set options, add, change, remove. */
@@ -233,6 +240,7 @@ export function useProductForm(productId) {
         if (!values.hasVariants && values.compareAt !== was.compareAt) p.compare_at_price = values.compareAt || null;
         if (!values.hasVariants && values.stock !== was.stock) p.stock_quantity = Number(values.stock);
         if (!sameTags(values.tags, was.tags)) p.tag_names = values.tags;
+        if (values.deliveryFee !== was.deliveryFee) p.delivery_fee = values.deliveryFee;
         if (values.isActive !== was.isActive) p.is_active = values.isActive;
         if (!sameImages(values.images, was.images)) p.image_keys = await buildImageKeys();
         return p;

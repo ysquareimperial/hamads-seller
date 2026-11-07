@@ -96,7 +96,11 @@ export function AccountScreen() {
 
         <View style={styles.menu}>
           <MenuRow icon="person-circle-outline" label="Edit profile" hint="Name, photo, brand, address" onPress={() => router.push('/profile')}/>
-          {inFood ? (<MenuRow border icon="settings-outline" label="Shop settings" hint="Name, pickup location, prep time" onPress={() => router.push('/food/settings')}/>) : null}
+          {inFood ? (<MenuRow border icon="settings-outline" label="Shop settings" hint="Name, pickup location, prep time" onPress={() => router.push('/food/settings')}/>) : (<>
+              <MenuRow border icon="cube-outline" label="Handover" hint="Get paid orders to the Hamads warehouse" onPress={() => router.push('/store/pickups')}/>
+              <MenuRow border icon="bicycle-outline" label="Handover setting" hint="Rider pickup or drop-off" onPress={() => router.push('/store/handover')}/>
+            </>)}
+          <MenuRow border icon="notifications-outline" label="Notifications" onPress={() => router.push('/notifications')}/>
           <MenuRow border icon="wallet-outline" label="Payments" hint="Wallet, bank account, payouts" onPress={() => router.push('/payments')}/>
           <MenuRow border icon="eye-outline" label="Preview your public store" hint={seller?.username ? `@${seller.username}` : undefined} onPress={() => router.push('/store-preview')}/>
           <MenuRow border icon={other.icon} label={otherActive ? `Go to ${other.name}` : `Open a ${other.name}`} hint={otherActive ? 'Switch business' : other.tagline} onPress={goOther}/>

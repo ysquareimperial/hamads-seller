@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { setSessionExpiredHandler } from '@/api/client';
 import { authService } from '@/features/auth/services/authService';
 import { tokenStorage } from '@/features/auth/services/tokenStorage';
+import { unregisterPush } from '@/features/notifications/push';
 
 export const useAuthStore = create((set, get) => ({
     status: 'loading', // loading | authenticated | signedOut
@@ -42,6 +43,8 @@ export const useAuthStore = create((set, get) => ({
 
     logout: async () => {
         const tokens = tokenStorage.get();
+        // Stop pushes to this phone while the token still works.
+        if (tokens) await unregisterPush();
         try {
             if (tokens) await authService.logout({ refresh_token: tokens.refresh_token });
         }

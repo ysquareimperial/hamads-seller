@@ -18,6 +18,7 @@ export default function FoodTabsLayout() {
         }}>
       <Tabs.Screen name="index" options={{ title: 'Home', tabBarIcon: tabIcon('flame', 'flame-outline') }}/>
       <Tabs.Screen name="menu" options={{ title: 'Menu', tabBarIcon: tabIcon('fast-food', 'fast-food-outline') }}/>
+      <Tabs.Screen name="plan" options={{ title: 'Plan', tabBarIcon: tabIcon('calendar', 'calendar-outline') }}/>
       <Tabs.Screen name="orders" options={{ title: 'Orders', tabBarIcon: tabIcon('bag-handle', 'bag-handle-outline') }}/>
       <Tabs.Screen name="account" options={{ title: 'Account', tabBarIcon: tabIcon('person', 'person-outline') }}/>
     </Tabs>);

@@ -52,6 +52,7 @@ export function ProductFormScreen() {
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           {!form.isEdit ? (<NoticeBanner tone="info" message="New products are reviewed by Hamads before they appear in the store."/>) : null}
+          {form.product && !form.product.is_approved && form.product.rejection_reason ? (<NoticeBanner title="Not approved" message={`${form.product.rejection_reason}\nFix this and save to send it for review again.`}/>) : null}
           {form.isEdit && status ? (<View style={styles.statusRow}>
               <Text style={styles.statusLabel}>Status</Text>
               <StatusBadge text={status.label} tone={status.tone}/>
@@ -91,6 +92,7 @@ export function ProductFormScreen() {
                 </View>
               </View>)}
             <Text style={styles.hint}>{values.hasVariants ? 'Used for any variant without its own price. Set compare-at (crossed-out) prices on each variant below.' : 'Compare-at shows as a crossed-out original price.'}</Text>
+            <TextField label="Delivery fee" prefix="₦" placeholder="1000" keyboardType="decimal-pad" value={values.deliveryFee} onChangeText={setField('deliveryFee')} error={errors.deliveryFee} hint="Charged to the buyer for Hamads delivery. An order pays the highest fee among its items." editable={!busy}/>
             {!values.hasVariants ? (<TextField label="Quantity in stock" placeholder="0" keyboardType="number-pad" value={values.stock} onChangeText={setField('stock')} error={errors.stock} editable={!busy}/>) : null}
           </Card>
 

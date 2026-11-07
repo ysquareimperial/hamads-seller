@@ -10,6 +10,9 @@ export const styles = StyleSheet.create(() => ({
     point: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
     pointText: { flex: 1, ...typography.caption, color: colors.textMuted },
     cardTitle: { ...typography.section, color: colors.text },
+    hint: { ...typography.caption, color: colors.textMuted },
+    row: { flexDirection: 'row', gap: spacing.md },
+    rowItem: { flex: 1 },
     locate: {
         flexDirection: 'row',
         alignItems: 'center',

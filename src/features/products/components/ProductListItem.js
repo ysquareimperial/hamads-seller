@@ -32,6 +32,7 @@ export function ProductListItem({ product, onPress }) {
           {product.has_variants ? (<Text style={styles.meta}>{product.option_names?.length ? product.option_names.join(' · ') : 'Has options'}</Text>) : null}
           {reviews > 0 ? (<Text style={styles.meta}>{`★ ${Number(product.average_rating).toFixed(1)} (${reviews})`}</Text>) : null}
         </View>
+        {status.key === 'rejected' ? <Text style={styles.rejected} numberOfLines={2}>{product.rejection_reason}</Text> : null}
       </View>
       <Ionicons name="chevron-forward" size={18} color={colors.disabled}/>
     </Pressable>);

@@ -17,6 +17,8 @@ export const styles = StyleSheet.create(() => ({
     id: { ...typography.bodyStrong, color: colors.textMuted },
     customer: { ...typography.section, color: colors.text },
     items: { ...typography.caption, color: colors.textMuted },
+    planned: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    plannedText: { ...typography.caption, fontWeight: '700', color: colors.primary },
     bottom: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginTop: spacing.xs },
     fulfil: {
         flexDirection: 'row',

@@ -55,6 +55,32 @@ export const foodVendorService = {
         return uploadSingleImage(image, async (content_type) => (await apiClient.post(F.itemImageUploadUrl, { content_type })).data);
     },
 
+    /** Dish schedule: { availability_mode, weekdays, preorder_quantity, sameday_quantity, dates, + upcoming day rows with *_sold }. */
+    async itemSchedule(id) {
+        const { data } = await apiClient.get(F.itemSchedule(id));
+        return data;
+    },
+    /** { availability_mode: every_day|weekdays|dates, weekdays: [0..6] (0=Mon), preorder_quantity, sameday_quantity, dates: [{ day, preorder_quantity }] }. Null quantity = no limit. */
+    async saveItemSchedule(id, payload) {
+        const { data } = await apiClient.put(F.itemSchedule(id), payload);
+        return data;
+    },
+    /** One day's limits for a dish (null = the dish's usual). 409 if lower than already ordered. */
+    async setDayLimit(id, date, payload) {
+        const { data } = await apiClient.put(F.itemDay(id, date), payload);
+        return data;
+    },
+    /** Hours planned orders can be delivered in: { window_start_hour, window_end_hour }. */
+    async saveScheduleSettings(payload) {
+        const { data } = await apiClient.put(F.scheduleSettings, payload);
+        return data;
+    },
+    /** Per day for the next `days`: order_count, items ("12 x Jollof rice"), windows. */
+    async plan(days = 7) {
+        const { data } = await apiClient.get(F.plan, { params: { days } });
+        return data;
+    },
+
     /** Paid orders, newest first. Returns { items } (the API has no total). */
     async listOrders({ status, limit, offset }) {
         const { data } = await apiClient.get(F.orders, { params: cleanParams({ status, limit, offset }) });

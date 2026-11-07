@@ -10,6 +10,7 @@ import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { NoticeBanner } from '@/components/ui/NoticeBanner';
 import { SafeScreen } from '@/components/ui/SafeScreen';
 import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { SelectField } from '@/components/ui/SelectField';
 import { TextField } from '@/components/ui/TextField';
 import { FOOD_PREP_MAX, FOOD_PREP_MIN } from '@/config';
 import { useRegistrationStore } from '@/features/auth/registrationStore';
@@ -20,6 +21,7 @@ import { colors } from '@/theme';
 import { getErrorMessage } from '@/utils/getErrorMessage';
 
 import { foodVendorService } from '../services/foodVendorService';
+import { hourLabel } from '../utils/schedule';
 import { styles } from './FoodShopFormScreen.styles';
 
 const POINTS = [
@@ -27,6 +29,9 @@ const POINTS = [
     { icon: 'bicycle-outline', text: 'Customers order for delivery by Hamads riders, or pickup from you.' },
     { icon: 'shield-checkmark-outline', text: 'Reviewed by Hamads before customers can see it.' },
 ];
+
+const HOURS = Array.from({ length: 24 }, (_, h) => ({ value: h, label: hourLabel(h) }));
+const hourOf = (v) => (v === undefined || v === null ? null : Number(v));
 
 const fromVendor = (v) => ({
     displayName: v.display_name ?? '',
@@ -57,6 +62,11 @@ export function FoodShopFormScreen() {
     const [errors, setErrors] = useState({});
     const [submitError, setSubmitError] = useState(null);
     const [saving, setSaving] = useState(false);
+    // Hours planned orders can be delivered in (PUT /food/vendor/schedule-settings).
+    const [initialHours] = useState(() => ({ start: hourOf(vendor?.window_start_hour), end: hourOf(vendor?.window_end_hour) }));
+    const [startHour, setStartHour] = useState(initialHours.start);
+    const [endHour, setEndHour] = useState(initialHours.end);
+    const [hoursError, setHoursError] = useState(null);
     const [locating, setLocating] = useState(false);
     const [locationError, setLocationError] = useState(null);
 
@@ -138,15 +148,24 @@ export function FoodShopFormScreen() {
     const save = async () => {
         if (saving) return;
         setSubmitError(null);
-        if (!validate()) return;
+        const hoursSet = startHour !== null || endHour !== null;
+        const hoursInvalid = hoursSet && (startHour === null || endHour === null || endHour <= startHour) ? 'Pick a start and an end time, with the end after the start.' : null;
+        setHoursError(hoursInvalid);
+        if (!validate() || hoursInvalid) return;
         const payload = buildPayload();
-        if (isEdit && Object.keys(payload).length === 0) {
+        const hoursChanged = startHour !== initialHours.start || endHour !== initialHours.end;
+        if (isEdit && Object.keys(payload).length === 0 && !hoursChanged) {
             router.back();
             return;
         }
         setSaving(true);
         try {
-            const saved = await foodVendorService.saveProfile(payload);
+            let saved = vendor;
+            if (!isEdit || Object.keys(payload).length) saved = await foodVendorService.saveProfile(payload);
+            if (hoursChanged && hoursSet) {
+                const hours = await foodVendorService.saveScheduleSettings({ window_start_hour: startHour, window_end_hour: endHour });
+                saved = { ...saved, window_start_hour: hours?.window_start_hour ?? startHour, window_end_hour: hours?.window_end_hour ?? endHour };
+            }
             setVendor(saved);
             if (!isEdit) await addBusiness('food').catch(() => { });
             clearDraft(null);
@@ -186,6 +205,26 @@ export function FoodShopFormScreen() {
             <TextField label="Shop name" placeholder="e.g. Mama Amina's Kitchen" autoCapitalize="words" maxLength={150} value={values.displayName} onChangeText={setField('displayName')} error={errors.displayName} editable={!saving}/>
             <TextField label="Description (optional)" placeholder="What you sell, specialities, opening hours…" autoCapitalize="sentences" multiline maxLength={500} value={values.description} onChangeText={setField('description')} editable={!saving}/>
             <TextField label="Usual prep time (minutes)" placeholder="20" keyboardType="number-pad" maxLength={3} value={values.prepMinutes} onChangeText={setField('prepMinutes')} error={errors.prepMinutes} hint="Used when an item has no prep time of its own." editable={!saving}/>
+          </Card>
+
+          <Card>
+            <Text style={styles.cardTitle}>Planned orders</Text>
+            <Text style={styles.hint}>Customers can order for another day and pick a one-hour delivery window between these times.</Text>
+            <View style={styles.row}>
+              <View style={styles.rowItem}>
+                <SelectField label="From" placeholder="Not set" options={HOURS} value={startHour} onChange={(v) => {
+            setStartHour(v);
+            setHoursError(null);
+        }} disabled={saving}/>
+              </View>
+              <View style={styles.rowItem}>
+                <SelectField label="Until" placeholder="Not set" options={HOURS} value={endHour} onChange={(v) => {
+            setEndHour(v);
+            setHoursError(null);
+        }} disabled={saving}/>
+              </View>
+            </View>
+            {hoursError ? <Text style={styles.error}>{hoursError}</Text> : null}
           </Card>
 
           <Card>

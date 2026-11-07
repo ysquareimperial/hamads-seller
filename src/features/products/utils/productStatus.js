@@ -1,6 +1,7 @@
 /** Single display status for a seller's product. */
 export function productStatus(product) {
     if (!product.is_active) return { key: 'inactive', label: 'Hidden', tone: 'neutral' };
+    if (!product.is_approved && product.rejection_reason) return { key: 'rejected', label: 'Rejected', tone: 'danger' };
     if (!product.is_approved) return { key: 'pending', label: 'In review', tone: 'warning' };
     return { key: 'approved', label: 'Live', tone: 'success' };
 }

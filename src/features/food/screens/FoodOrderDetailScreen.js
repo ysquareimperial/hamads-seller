@@ -25,6 +25,7 @@ import { RejectSheet } from '../components/RejectSheet';
 import { foodOrderCache } from '../foodCache';
 import { foodVendorService } from '../services/foodVendorService';
 import { clockTime, foodStatusMeta, FULFILMENT, timeAgo } from '../utils/foodStatus';
+import { plannedLabel } from '../utils/schedule';
 import { styles } from './FoodOrderDetailScreen.styles';
 
 const call = (phone) => Linking.openURL(`tel:${phone}`);
@@ -35,6 +36,8 @@ function stageNotice(order) {
     switch (order.status) {
         case 'paid':
             return { tone: 'warning', text: 'New paid order. Accept it to start preparing, or reject it.' };
+        case 'scheduled':
+            return { tone: 'info', text: `${plannedLabel(order) ?? 'Planned order'}. It's already accepted: Hamads starts it shortly before its window and tells you, then you mark it ready. You can still reject it.` };
         case 'preparing':
             return { tone: 'info', text: order.estimated_ready_at ? `Ready by ${clockTime(order.estimated_ready_at)}. Mark it ready when it's packed.` : "Mark it ready when it's packed." };
         case 'ready':
@@ -136,7 +139,8 @@ export function FoodOrderDetailScreen() {
     const fulfil = FULFILMENT[order.fulfilment] ?? FULFILMENT.delivery;
     const notice = stageNotice(order);
     const canHandOver = order.status === 'ready' && order.fulfilment === 'pickup';
-    const hasActions = order.status === 'paid' || order.status === 'preparing' || canHandOver;
+    const hasActions = order.status === 'paid' || order.status === 'scheduled' || order.status === 'preparing' || canHandOver;
+    const groupDelivery = !!order.group_id && order.fulfilment !== 'pickup';
 
     return (<SafeScreen edges={['top', 'bottom']}>
       {header}
@@ -151,6 +155,7 @@ export function FoodOrderDetailScreen() {
         </View>
 
         {notice ? <NoticeBanner tone={notice.tone} message={notice.text}/> : null}
+        {groupDelivery ? (<NoticeBanner tone="info" title="Multi-shop order" message="The customer ordered from other shops too. Accept or reject only your part. One rider collects from every shop."/>) : null}
 
         {order.note ? (<View style={styles.note}>
             <Ionicons name="chatbubble-ellipses-outline" size={18} color={colors.warning}/>
@@ -201,6 +206,7 @@ export function FoodOrderDetailScreen() {
               <Button title="Accept order" icon="checkmark" onPress={() => openSheet('accept')} disabled={!!action}/>
               <Button title="Reject" variant="secondary" compact onPress={() => openSheet('reject')} disabled={!!action}/>
             </>) : null}
+          {order.status === 'scheduled' ? (<Button title="Reject planned order" variant="secondary" compact onPress={() => openSheet('reject')} disabled={!!action}/>) : null}
           {order.status === 'preparing' ? (<Button title="Mark as ready" icon="checkmark-circle-outline" onPress={markReady} loading={action === 'ready'} disabled={!!action}/>) : null}
           {canHandOver ? (<Button title="Enter pickup code" icon="keypad-outline" onPress={() => openSheet('pickup')} disabled={!!action}/>) : null}
         </View>) : null}

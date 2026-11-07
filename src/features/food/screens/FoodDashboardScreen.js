@@ -13,6 +13,7 @@ import { SectionHeader } from '@/components/ui/SectionHeader';
 import { FOOD_ORDERS_POLL_MS } from '@/config';
 import { BUSINESS } from '@/features/business/businessConfig';
 import { StatTile } from '@/features/dashboard/StatTile';
+import { BellButton } from '@/features/notifications/BellButton';
 import { useAsyncData } from '@/hooks/useAsyncData';
 import { usePolling } from '@/hooks/usePolling';
 import { useBusinessStore } from '@/store/businessStore';
@@ -38,6 +39,7 @@ async function loadFoodDashboard() {
         newOrders: count('paid'),
         preparing: count('preparing'),
         ready: count('ready'),
+        planned: count('scheduled'),
         active: orders.items.filter((o) => ACTIVE_FOOD_STATUSES.includes(o.status)).slice(0, 8),
         items: items.length,
         available: items.filter((i) => i.is_available).length,
@@ -66,12 +68,13 @@ export function FoodDashboardScreen() {
           <Text style={styles.kind}>{BUSINESS.food.name.toUpperCase()}</Text>
           <Text style={styles.shop} numberOfLines={1}>{vendor.display_name}</Text>
         </View>
+        <BellButton />
         <IconButton icon="settings-outline" accessibilityLabel="Shop settings" onPress={() => router.push('/food/settings')}/>
         <IconButton icon="swap-horizontal" accessibilityLabel="Switch business" onPress={() => router.dismissTo('/')}/>
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.primary} colors={[colors.primary]}/>}>
-        {!vendor.is_approved ? (<NoticeBanner title="Shop under review" message="Build your menu now. Customers will see your shop once Hamads approves it."/>) : null}
+        {!vendor.is_approved ? (vendor.rejection_reason ? (<NoticeBanner title="Shop not approved" message={`${vendor.rejection_reason}\nUpdate it in Shop settings to be reviewed again.`}/>) : (<NoticeBanner title="Shop under review" message="Build your menu now. Customers will see your shop once Hamads approves it."/>)) : null}
 
         <OpenStatusToggle />
 
@@ -80,6 +83,7 @@ export function FoodDashboardScreen() {
               <StatTile icon="notifications-outline" tone={data.newOrders ? 'warning' : 'primary'} label="New orders" value={data.newOrders} onPress={() => router.navigate('/food/orders')}/>
               <StatTile icon="flame-outline" label="Preparing" value={data.preparing} onPress={() => router.navigate('/food/orders')}/>
               <StatTile icon="checkmark-circle-outline" label="Ready" value={data.ready} onPress={() => router.navigate('/food/orders')}/>
+              <StatTile icon="calendar-outline" label="Planned" value={data.planned} onPress={() => router.navigate('/food/plan')}/>
               <StatTile icon="fast-food-outline" tone={data.items && !data.available ? 'danger' : 'primary'} label="Items available" value={`${data.available}/${data.items}`} onPress={() => router.navigate('/food/menu')}/>
             </View>
 

@@ -8,6 +8,7 @@ import { IconButton } from '@/components/ui/IconButton';
 import { NoticeBanner } from '@/components/ui/NoticeBanner';
 import { SafeScreen } from '@/components/ui/SafeScreen';
 import { authService } from '@/features/auth/services/authService';
+import { BellButton } from '@/features/notifications/BellButton';
 import { paymentsService } from '@/features/payments/services/paymentsService';
 import { shareStore, storeLinkLabel } from '@/features/username/username';
 import { useAsyncData } from '@/hooks/useAsyncData';
@@ -15,6 +16,7 @@ import { foodVendorService } from '@/features/food/services/foodVendorService';
 import { sellerOrderService } from '@/features/orders/services/sellerOrderService';
 import { useAuthStore } from '@/store/authStore';
 import { useBusinessStore } from '@/store/businessStore';
+import { useNotificationStore } from '@/store/notificationStore';
 import { colors } from '@/theme';
 import { formatMinor } from '@/utils/format';
 
@@ -30,6 +32,7 @@ export function HubScreen() {
     const seller = useAuthStore((s) => s.seller);
     const loadSeller = useAuthStore((s) => s.loadSeller);
     const { status, storeEnabled, vendor, error, load } = useBusinessStore();
+    const refreshUnread = useNotificationStore((s) => s.refresh);
     const [refreshing, setRefreshing] = useState(false);
 
     // Counts per business, setup checklist and wallet balance.
@@ -48,19 +51,21 @@ export function HubScreen() {
     useFocusEffect(useCallback(() => {
         void load();
         void reloadCounts({ silent: true });
-    }, [load, reloadCounts]));
+        void refreshUnread();
+    }, [load, reloadCounts, refreshUnread]));
 
     const refresh = async () => {
         setRefreshing(true);
-        await Promise.all([load(), loadSeller(), reloadCounts({ silent: true })]);
+        await Promise.all([load(), loadSeller(), reloadCounts({ silent: true }), refreshUnread()]);
         setRefreshing(false);
     };
 
     const loading = status === 'idle' || status === 'loading';
 
-    const storeBadges = [seller?.is_approved ? { text: 'Approved', tone: 'success' } : { text: 'Under review', tone: 'warning' }];
+    const approval = (ok, reason) => (ok ? { text: 'Approved', tone: 'success' } : reason ? { text: 'Not approved', tone: 'danger' } : { text: 'Under review', tone: 'warning' });
+    const storeBadges = [approval(seller?.is_approved, seller?.rejection_reason)];
     const foodBadges = vendor ? [
-        vendor.is_approved ? { text: 'Approved', tone: 'success' } : { text: 'Under review', tone: 'warning' },
+        approval(vendor.is_approved, vendor.rejection_reason),
         vendor.is_open ? { text: 'Open', tone: 'success' } : { text: 'Closed', tone: 'neutral' },
     ] : [];
 
@@ -73,6 +78,7 @@ export function HubScreen() {
           <Text style={styles.hello}>Welcome back</Text>
           <Text style={styles.name} numberOfLines={1}>{seller ? `${seller.first_name} ${seller.last_name}` : ' '}</Text>
         </View>
+        <BellButton />
         <IconButton icon="person-outline" accessibilityLabel="Profile" onPress={() => router.push('/profile')}/>
       </View>
 

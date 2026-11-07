@@ -217,6 +217,12 @@ export function MenuItemFormScreen() {
             </View>
           </Card>
 
+          {isEdit ? (<Card>
+              <Text style={styles.cardTitle}>Schedule & daily limits</Text>
+              <Text style={styles.hint}>Choose which days it’s sold, and how many can be ordered ahead or on the day.</Text>
+              <Button title="Set schedule" variant="secondary" icon="calendar-outline" compact onPress={() => router.push(`/food/menu/${id}/schedule`)} disabled={busy}/>
+            </Card>) : (<Text style={styles.hint}>After adding it, open the item again to set the days it’s sold and daily limits.</Text>)}
+
           <ErrorMessage message={submitError}/>
         </ScrollView>
         <View style={styles.footer}>

@@ -30,4 +30,5 @@ export const styles = StyleSheet.create(() => ({
     metaRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.sm },
     meta: { ...typography.caption, color: colors.textMuted },
     metaDanger: { color: colors.danger, fontWeight: '600' },
+    rejected: { ...typography.caption, color: colors.danger },
 }));

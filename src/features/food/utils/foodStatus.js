@@ -1,6 +1,7 @@
 export const FOOD_ORDER_FILTERS = [
     { value: null, label: 'All' },
     { value: 'paid', label: 'New' },
+    { value: 'scheduled', label: 'Planned' },
     { value: 'preparing', label: 'Preparing' },
     { value: 'ready', label: 'Ready' },
     { value: 'on_the_way', label: 'On the way' },
@@ -11,6 +12,7 @@ export const FOOD_ORDER_FILTERS = [
 const META = {
     pending_payment: { text: 'Awaiting payment', tone: 'neutral' },
     paid: { text: 'New order', tone: 'warning' },
+    scheduled: { text: 'Planned', tone: 'primary' },
     preparing: { text: 'Preparing', tone: 'primary' },
     ready: { text: 'Ready', tone: 'success' },
     on_the_way: { text: 'On the way', tone: 'primary' },

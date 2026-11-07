@@ -20,5 +20,7 @@ export const FOOD_PICKUP_CODE_LENGTH = 4;
 export const STORE_URL = (process.env.EXPO_PUBLIC_STORE_URL ?? '').replace(/\/$/, '');
 export const USERNAME_MIN = 3;
 export const USERNAME_MAX = 30;
+// Product delivery fee default (naira). One fee per order: the highest among its items.
+export const DEFAULT_DELIVERY_FEE = 1000;
 // Prints every API request/response to the Metro terminal. Dev builds only.
 export const LOG_API = __DEV__;
